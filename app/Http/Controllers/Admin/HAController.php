@@ -32,7 +32,7 @@ class HAController extends Controller{
 
         $admin  = DB::table('users')->where('id',$id_user)->where('admin',1)->where('status',1)->count();
         if($admin){
-            // $lihat = 1;  $tambah = 1;  $edit = 1; $admin = 1;  $khusus = 1; $operator = 1;
+            $lihat = 1;  $tambah = 1;  $edit = 1; $admin = 1;  $khusus = 1; $operator = 1;
         }
 
         return [
