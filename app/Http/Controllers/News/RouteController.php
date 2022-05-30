@@ -26,7 +26,7 @@ class RouteController extends Controller
     public function IndexRouteSatu($satu, Request $req){
         if($satu == 'last_post'){
             // api web
-            return News::last_post();
+            return News::WebLastPost();
         }
         return response()->json([
             'status'  => false,

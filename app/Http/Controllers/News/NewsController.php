@@ -79,6 +79,23 @@ class NewsController extends Controller
         ]);
     }
 
+    static function WebLastPost(){
+        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50;
+        $news = Berita::orderBy('created_at', 'desc')
+            ->paginate($per_page)
+            ->getCollection()
+            ->transform(function ($value) {
+                $value->timeStamp();
+                $value->user;
+                return $value;
+            });
+        return response()->json([
+            'success'  => true,
+            'message' => 'Sukses',
+            'data'  => $news,
+        ]);
+    }
+
     // detail news
     static function show($slug)
     {
