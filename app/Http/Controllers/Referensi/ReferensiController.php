@@ -30,6 +30,7 @@ class ReferensiController extends Controller
         }
         return response()->json([
           'status'  => $status,
+          'success'  => $status,
           'message' => $message,
           'data'  => $datas
         ]);

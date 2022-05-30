@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use File;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class RegulasiController extends Controller
 {
@@ -59,15 +60,30 @@ class RegulasiController extends Controller
     }
 
     static function LastPost(){
-        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 4 ;
-        $news = Regulasi::orderBy('created_at', 'desc')
-            ->paginate($per_page)
-            ->getCollection()
-            ->transform(function ($value) {
-                $value->timeStamp();
-                $value->user;
-                return $value;
-            });
+        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50 ;
+
+        $ha = HA::GetOtoritas(Auth::id(),5);
+        if($ha['tambah']){
+            $news = Regulasi::orderBy('created_at', 'desc')
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+        }else{
+            $news = Regulasi::orderBy('created_at', 'desc')
+                ->where('id_user',Auth::id())
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+        }
+
         return response()->json([
           'success' => true,
           'message' => 'Sukses',
@@ -161,17 +177,23 @@ class RegulasiController extends Controller
     static function UpdateRegulasi($slug,$req){
         $exp  = explode('-',$slug);
         $success = false; $message = 'Gagal';
-        $galeri = Regulasi::where('id', $exp[0])->first();
-        if($galeri){
-          $galeri->keterangan = $req->keterangan;
-          $galeri->status = $req->status;
-          $galeri->update();
+        $regulasi = Regulasi::where('id', $exp[0])->first();
+        if($regulasi){
+          $ha = HA::GetOtoritas(Auth::id(),5);
+          if($ha['edit']){
+              $status = $req->status;
+          }else{
+              $status = 0;
+          }
+          $regulasi->keterangan = $req->keterangan;
+          $regulasi->status = $status;
+          $regulasi->update();
           $success = true; $message = 'Sukses';
         }
         return response()->json([
             'success'  => $success,
             'message' => $message,
-            'data'  => $galeri,
+            'data'  => $regulasi,
             'slug'  => $slug,
             'req' => $req->all()
         ]);

@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use File;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class GaleriController extends Controller
 {
@@ -46,7 +47,7 @@ class GaleriController extends Controller
 
     public function last_post()
     {
-        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 4 ;
+        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50 ;
         $news = Galeri::orderBy('created_at', 'desc')
             ->paginate($per_page)
             ->getCollection()
@@ -59,15 +60,30 @@ class GaleriController extends Controller
     }
 
     static function LastPost(){
-        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 4 ;
-        $news = Galeri::orderBy('created_at', 'desc')
-            ->paginate($per_page)
-            ->getCollection()
-            ->transform(function ($value) {
-                $value->timeStamp();
-                $value->user;
-                return $value;
-            });
+        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50 ;
+        $ha = HA::GetOtoritas(Auth::id(),6);
+        if($ha['tambah']){
+            $news = Galeri::orderBy('created_at', 'desc')
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+
+        }else{
+            $news = Galeri::orderBy('created_at', 'desc')
+                ->where('id_user',Auth::id())
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+        }
+
         return response()->json([
           'success' => true,
           'message' => 'Sukses',
@@ -134,10 +150,10 @@ class GaleriController extends Controller
             $news = Galeri::create($input);
             if ($news) {
                 $request->file->storeAs('public/'.$path, time().'.'.$request->file('file')->getClientOriginalExtension() );
-                return response()->json(['status' => 'success', 'message' => 'News created successfully']);
+                return response()->json(['success' => true, 'message' => 'News created successfully']);
             }
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -145,8 +161,14 @@ class GaleriController extends Controller
         $success = false; $message = 'Gagal';
         $galeri = Galeri::where('slug', $slug)->first();
         if($galeri){
+          $ha = HA::GetOtoritas(Auth::id(),6);
+          if($ha['edit']){
+              $status = $req->status;
+          }else{
+              $status = 0;
+          }
           $galeri->keterangan = $req->keterangan;
-          $galeri->status = $req->status;
+          $galeri->status = $status;
           $galeri->update();
           $success = true; $message = 'Sukses';
         }

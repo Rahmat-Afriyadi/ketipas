@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\PPDB\PPDBController as PPDB;
 use App\Http\Controllers\PPDB\LokasiController as Lokasi;
 use App\Http\Controllers\PPDB\RegisterController as Register;
+use App\Http\Controllers\PPDB\JadwalController as Jadwal;
 
 class RouteController extends Controller
 {
@@ -42,10 +43,37 @@ class RouteController extends Controller
         elseif($satu == 'cek-status-pendaftaran'){
             return Register::CekStatusPendaftaran($req);
         }
+
+        elseif($satu == 'get-data-pelaksana-ppdb'){
+            return PPDB::GedDataPelaksana();
+        }elseif($satu == 'tambah-data-informasi'){
+            return PPDB::TambahDataInformasi($req);
+        }elseif($satu == 'hapus-data-informasi'){
+            return PPDB::HapusDataInformasi($req);
+        }
+
         return response()->json([
             'status'  => false,
             'message' => '...',
             'data'  => $satu.' # '.$dua
+        ]);
+    }
+
+    public function IndexRouteTiga($satu, $dua, $tiga, Request $req){
+        if($satu == 'home' && $dua == 'get-data-informasi'){
+            return PPDB::GetDataInformasi();
+        }elseif($satu == 'home' && $dua == 'edit-data-informasi'){
+            return PPDB::EditDataInformasi($tiga,$req);
+        }elseif($satu == 'home' && $dua == 'get-informasi-aturan'){
+            return PPDB::GetInformasiAturan($tiga,$req);
+        }elseif($satu == 'home' && $dua == 'get-info-jadwal'){
+            return Jadwal::GetApiJadwal($tiga,$req);
+        }
+
+        return response()->json([
+            'status'  => false,
+            'message' => '...',
+            'tiga'  => $satu.' # '.$dua.' # '.$tiga
         ]);
     }
 

@@ -22,17 +22,17 @@ class HAController extends Controller{
         $opr  = DB::table('ta_sekolah_opr')->where('id_user',$id_user)->where('status',1)->first();
         if($opr){
             $lihat = 0;  $tambah = 0;  $edit = 0; $id_sek = $opr->id_sek; $operator = $opr->id_sek;
-        }else{
-            $hk  = DB::table('ta_hak_akses')->where('id_user',$id_user)->where('id_hak_akses',$id_ha)->where('status',1)->first();
-            if($hk){
-                $lihat = $hk->lihat;  $tambah = $hk->tambah;  $edit = $hk->edit; $khusus = $hk->lihat;
-                $operator = 1;
-            }
+        }
+
+        $hk  = DB::table('ta_hak_akses')->where('id_user',$id_user)->where('id_hak_akses',$id_ha)->where('status',1)->first();
+        if($hk){
+            $lihat = $hk->lihat;  $tambah = $hk->tambah;  $edit = $hk->edit; $khusus = $hk->lihat;
+            $operator = 1;
         }
 
         $admin  = DB::table('users')->where('id',$id_user)->where('admin',1)->where('status',1)->count();
         if($admin){
-            $lihat = 1;  $tambah = 1;  $edit = 1; $admin = 1;  $khusus = 1; $operator = 1;
+            // $lihat = 1;  $tambah = 1;  $edit = 1; $admin = 1;  $khusus = 1; $operator = 1;
         }
 
         return [

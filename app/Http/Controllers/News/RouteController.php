@@ -43,7 +43,7 @@ class RouteController extends Controller
             return News::UpdateBerita($dua,$req);
         }elseif($satu == 'get-by-id'){
             return News::GetById($dua);
-        }elseif($satu == 'last_post'){
+        }elseif($satu == 'last-post'){
             return News::last_post();
         }
         return response()->json([

@@ -11,11 +11,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use File;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class NewsController extends Controller
 {
-    //
-    // index news
+
     public function index(Request $request)
     {
         $search_query = $request->searchTerm;
@@ -46,19 +46,36 @@ class NewsController extends Controller
 
     public function last_post()
     {
-        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 4 ;
-        $news = Berita::orderBy('created_at', 'desc')
-            ->paginate($per_page)
-            ->getCollection()
-            ->transform(function ($value) {
-                $value->timeStamp();
-                $value->user;
-                return $value;
-            });
+        $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50 ;
+
+        $ha = HA::GetOtoritas(Auth::id(),4);
+
+        if($ha['tambah']){
+            $news = Berita::orderBy('created_at', 'desc')
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+
+        }else{
+            $news = Berita::orderBy('created_at', 'desc')
+                ->where('id_user',Auth::id())
+                ->paginate($per_page)
+                ->getCollection()
+                ->transform(function ($value) {
+                    $value->timeStamp();
+                    $value->user;
+                    return $value;
+                });
+        }
         return response()->json([
             'success'  => true,
             'message' => 'Sukses',
-            'data'  => $news
+            'data'  => $news,
+            'ha'  => $ha
         ]);
     }
 
@@ -102,6 +119,12 @@ class NewsController extends Controller
     }
 
     static function UpdateBerita($url,$req){
+        $ha = HA::GetOtoritas(Auth::id(),4);
+        if($ha['edit']){
+            $status = $req->status;
+        }else{
+            $status = 0;
+        }
         $success = false; $message = 'Gagal Update';
         $input = $req->all();
         $validator = Validator::make($input, [
@@ -116,7 +139,7 @@ class NewsController extends Controller
         if($news){
           $news->judul = $req->judul;
           $news->uraian = $req->uraian;
-          $news->status = $req->status;
+          $news->status = $status;
           $news->update();
           $success = true; $message = 'Sukses Update';
         }

@@ -177,6 +177,19 @@ Route::group(['prefix'=>'sekolah', 'middleware'=>'jwt.verify'], function() {
 
 });
 
+Route::group(['prefix'=>'ppdb', 'middleware'=>'jwt.verify'], function() {
+    Route::get('/',[PPDB::class, 'index']);
+    Route::get('/{satu}',[PPDB::class, 'IndexRouteSatu']);
+    Route::get('/{satu}/{dua}',[PPDB::class, 'IndexRouteDua']);
+    Route::get('/{satu}/{dua}/{tiga}',[PPDB::class, 'IndexRouteTiga']);
+
+    Route::post('/',[PPDB::class, 'index']);
+    Route::post('/{satu}',[PPDB::class, 'IndexRouteSatu']);
+    Route::post('/{satu}/{dua}',[PPDB::class, 'IndexRouteDua']);
+    Route::post('/{satu}/{dua}/{tiga}',[PPDB::class, 'IndexRouteTiga']);
+
+});
+
 Route::group(['prefix'=>'web/ppdb'], function() {
     Route::get('/',[PPDB::class, 'index']);
     Route::get('/{satu}',[PPDB::class, 'IndexRouteSatu']);

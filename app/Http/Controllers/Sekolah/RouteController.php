@@ -15,6 +15,9 @@ use App\Http\Controllers\Sekolah\TendikController as Tendik;
 use App\Http\Controllers\Sekolah\NonTendikController as NonTendik;
 use App\Http\Controllers\Sekolah\PesertaDidikController as PesertaDidik;
 use App\Http\Controllers\Sekolah\KelulusanController as Kelulusan;
+use App\Http\Controllers\Sekolah\SarprasController as Sarpras;
+use App\Http\Controllers\Sekolah\KPController as KP;
+use App\Http\Controllers\Sekolah\KGBController as KGB;
 
 class RouteController extends Controller
 {
@@ -52,6 +55,26 @@ class RouteController extends Controller
             return PesertaDidik::GetKelulusan($req);
         }
 
+        elseif($satu == 'sarana'){
+            return Sarpras::GetSaranaByTA($req);
+        }elseif($satu == 'import-sarana'){
+            return Sarpras::ImportSarana($req);
+        }
+
+        elseif($satu == 'prasarana'){
+            return Sarpras::GetPrasaranaByTA($req);
+        }elseif($satu == 'import-prasarana'){
+            return Sarpras::ImportPrasarana($req);
+        }
+
+        elseif($satu == 'kenaikan-pangkat'){
+            return KP::GetKP($req);
+        }
+
+        elseif($satu == 'kgb'){
+            return KGB::GetKGB($req);
+        }
+
         return response()->json([
             'status'  => false,
             'message' => '..'
@@ -79,6 +102,18 @@ class RouteController extends Controller
             return Kelulusan::UpdateNilai($req);
         }elseif($satu == 'kelulusan' && $dua == 'update-status-kelulusan'){
             return Kelulusan::UpdateKelulusan($req);
+        }
+
+        elseif($satu == 'kenaikan-pangkat' && $dua == 'detail'){
+            return KP::DetailKP($tiga);
+        }elseif($satu == 'kenaikan-pangkat' && $dua == 'update'){
+            return KP::UpdateKP($tiga,$req);
+        }
+
+        elseif($satu == 'kgb' && $dua == 'detail'){
+            return KGB::DetailKGB($tiga);
+        }elseif($satu == 'kgb' && $dua == 'update'){
+            return KGB::UpdateKGB($tiga,$req);
         }
 
         return response()->json([

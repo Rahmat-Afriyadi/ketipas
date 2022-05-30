@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use File;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class VideoController extends Controller
 {
