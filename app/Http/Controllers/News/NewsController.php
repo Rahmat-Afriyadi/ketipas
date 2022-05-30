@@ -82,6 +82,7 @@ class NewsController extends Controller
     static function WebLastPost(){
         $per_page = isset($_GET['per_page']) ? $_GET['per_page'] : 50;
         $news = Berita::orderBy('created_at', 'desc')
+            ->where('status',1)
             ->paginate($per_page)
             ->getCollection()
             ->transform(function ($value) {
