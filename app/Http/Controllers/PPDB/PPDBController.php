@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Config\ConfigController as Config;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class PPDBController extends Controller
 {
@@ -210,6 +211,111 @@ class PPDBController extends Controller
           'req' => $req->all(),
         ]);
 
+    }
+
+    static function FilSekByTA($req){
+        $success = false; $message = 'Gagal'; $datas = []; $id_user = Auth::id();
+        $admin  = DB::table('users')->where('id',$id_user)->where('admin',1)->where('status',1)->count();
+        if(!$admin){
+            $opr  = DB::table('ta_sekolah_opr')->where('id_user',$id_user)->where('status',1)->first();
+            if($opr){
+                $data  = DB::table('ta_ppdb_sek')->where('id_sek',$opr->id_sek)->where('tahun',$req->thn_ajar)->get();
+                foreach($data as $dat){
+                    $datas[]  = [
+                      'id'  => $dat->id,
+                      'nama'  => $dat->nm_sek,
+                    ];
+                }
+                if(!sizeOf($data)) $datas = [];
+                $success = true;
+            }
+        }else{
+            $data  = DB::table('ta_ppdb_sek')->where('tahun',$req->thn_ajar)->get();
+            foreach($data as $dat){
+                $datas[]  = [
+                  'id'  => $dat->id,
+                  'nama'  => $dat->nm_sek,
+                ];
+            }
+            if(!sizeOf($data)) $datas = [];
+            $success = true;
+        }
+
+        return response()->json([
+          'success'  => $success,
+          'message' => $message,
+          'data'  => $datas,
+          'req' => $req->all(),
+        ]);
+    }
+
+
+    static function FilKecByTA($req){
+        if($req->id_jenjang){
+            $jenjang = DB::table('ref_jenjang_sek')->where('id',$req->id_jenjang)->value('uraian');
+        }else{
+            $jenjang = '';
+        }
+
+        $query  = DB::table('ta_sekolah')->select('id');
+        if($req->id_kec) $query->where('id_kec',$req->id_kec);
+        if($jenjang) $query->where('jenjang',$jenjang);
+        $data   = $query->get();
+        foreach($data as $dat){
+            $id_sek[]  = $dat->id;
+        }
+        if(!sizeOf($data)) $id_sek = [0];
+
+        $urut = 1;
+        $data  = DB::table('ta_ppdb_sek')->where('tahun',$req->id_thn)->whereIn('id_sek',$id_sek)->get();
+        foreach($data as $dat){
+            $laki  = 0; $perempuan = 0; $total = 0;
+            $reg_l = 0; $reg_p = 0; $tolak_l = 0; $tolak_p = 0;
+            $query  = DB::table('ta_ppdb_pendaftar')->select('jk','status_terima')->where('id_ppdb_sek',$dat->id);
+            if($req->id_jalur) $query->where('jalur',$req->id_jalur);
+            $cek    = $query->get();
+            if(sizeOf($cek)){
+                foreach($cek as $dcek){
+                    if($dcek->status_terima == 2){
+                        // diterima
+                        if($dcek->jk == 1) $laki++;
+                        else $perempuan++;
+                    }if($dcek->status_terima == 3){
+                        // ditolak
+                        if($dcek->jk == 1) $tolak_l++;
+                        else $tolak_p++;
+                    }
+                    if($dcek->jk == 1) $reg_l++;
+                    else $reg_p++;
+                }
+                $total = $laki + $perempuan;
+
+            }
+
+            $datas[]  = [
+              'urut'  => $urut,
+              'nama'  => $dat->nm_sek,
+              'alamat'  => $dat->alamat,
+              'jumlah'  => $total,
+              'laki'  => $laki,
+              'perempuan' => $perempuan,
+              'reg_l' => $reg_l,
+              'reg_p' => $reg_p,
+              'tolak_l' => $tolak_l,
+              'tolak_p' => $tolak_p,
+
+            ];
+            $urut++;
+        }
+        if(!sizeOf($data)) $datas = [];
+
+        $success = true; $message = 'Sukses Get Data';
+        return response()->json([
+          'success'  => $success,
+          'message' => $message,
+          'data'  => $datas,
+          'req' => $req->all(),
+        ]);
     }
 
 }

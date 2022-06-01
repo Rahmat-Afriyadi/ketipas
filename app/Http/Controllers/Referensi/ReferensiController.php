@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class ReferensiController extends Controller
 {
@@ -29,7 +30,7 @@ class ReferensiController extends Controller
             $status = false; $message = 'Gagal Get Tahun';
         }
         return response()->json([
-          'status'  => $status,
+          'success'  => $status,
           'success'  => $status,
           'message' => $message,
           'data'  => $datas
@@ -51,9 +52,29 @@ class ReferensiController extends Controller
             $status = false; $message = 'Gagal Get Tahun';
         }
         return response()->json([
-          'status'  => $status,
+          'success'  => $status,
           'message' => $message,
           'data'  => $datas
+        ]);
+    }
+
+    static function GetMapelSatu($req){
+        $status = true; $message = 'Get Mapel Satu';
+        $data   = DB::table('ref_mapel')->where('jenjang',$req->jenjang)->orderBy('id')->get();
+        foreach($data as $dat){
+            $datas[]  = [
+              'id'    => $dat->id,
+              'uraian'  => $dat->uraian,
+            ];
+        }
+        if(!sizeOf($data)) $datas  = [];
+
+        return response()->json([
+          'success'  => $status,
+          'message' => $message,
+          'data'  => $datas,
+          'ha'  => HA::GetOtoritas(Auth::id(),0),
+          'req' => $req->all()
         ]);
     }
 

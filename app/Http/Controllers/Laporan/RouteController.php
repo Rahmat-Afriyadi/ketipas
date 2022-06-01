@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Referensi;
+namespace App\Http\Controllers\Laporan;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,7 +10,8 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Http\Controllers\Referensi\ReferensiController as Referensi;
+
+use App\Http\Controllers\Laporan\PesertaDidikController as PD;
 
 class RouteController extends Controller
 {
@@ -24,9 +25,6 @@ class RouteController extends Controller
     }
 
     public function IndexRouteSatu($satu, Request $req){
-        if($satu == 'last_post'){
-            return News::last_post();
-        }
         return response()->json([
             'status'  => false,
             'message' => '..'
@@ -34,15 +32,25 @@ class RouteController extends Controller
     }
 
     public function IndexRouteDua($satu, $dua, Request $req){
-        if($satu == 'get-tahun'){
-            return Referensi::GetTahun();
-        }elseif($satu == 'get-kecamatan'){
-            return Referensi::GetKecamatan();
-        }
-        elseif($satu == 'get-mapel-satu') return Referensi::GetMapelSatu($req);
+
+
         return response()->json([
             'status'  => false,
-            'message' => '...'
+            'message' => '...',
+            'data'  => $satu.' # '.$dua
+        ]);
+    }
+
+    public function IndexRouteTiga($satu, $dua, $tiga, Request $req){
+        if($satu == 'vaksin' && $dua == 'filter-pd'){
+            return PD::FilterPesertaDidik($tiga,$req);
+        }
+        elseif($satu == 'peserta-didik' && $dua == 'filter-data-dua') return PD::FilterDataDua($req);
+
+        return response()->json([
+            'status'  => false,
+            'message' => '...',
+            'tiga'  => $satu.' # '.$dua.' # '.$tiga
         ]);
     }
 

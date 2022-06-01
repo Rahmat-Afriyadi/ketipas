@@ -103,8 +103,90 @@ class RegisterController extends Controller {
         }
     }
 
-    static function GetDataRegistered($req){
+    static function Registered($req){
         $otoritas  = HA::GetOtoritas(Auth::id(),2);
+        $id_user = Auth::id();
+        $admin  = DB::table('users')->where('id',$id_user)->where('admin',1)->where('status',1)->count();
+        if($admin){
+            $sek  = DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first();
+            if(!$sek){
+                return response()->json([
+                    'success'  => false,
+                    'message' => 'Data PPDB Tidak Ditemukan',
+                ]);
+            }
+
+            $urut = 1;
+            $status_terima  = $req->status_terima;
+            $query  = DB::table('ta_ppdb_pendaftar')->where('id_ppdb_sek',$sek->id);
+            if($status_terima) $query->where('status_terima',$status_terima);
+            if($req->jalur) $query->where('jalur',$req->jalur);
+            $data  = $query->orderBy('created_at')->get();
+            foreach($data as $dat){
+                if($dat->nisn == 0){
+                    $cek = DB::table('dapodik_siswa_akhir')->where('nik',$dat->nik)->first();
+                    if($cek){
+                        DB::table('ta_ppdb_pendaftar')->where('id',$dat->id)->update([
+                            'nisn'  => $cek->nisn,
+                        ]);
+                    }
+                }elseif($dat->nik == 0){
+                    $cek = DB::table('dapodik_siswa_akhir')->where('nisn',$dat->nisn)->first();
+                    if($cek){
+                        DB::table('ta_ppdb_pendaftar')->where('id',$dat->id)->update([
+                            'nik'  => $cek->nik,
+                        ]);
+                    }
+                }
+
+                $id_jenjang  = DB::table('ta_sekolah')->where('id',$sek->id_sek)->value('jenjang');
+                if($dat->jk == 1) $jk = 'Laki - Laki';
+                else $jk = 'Perempuan';
+                if($dat->jalur == 1) $ur_jalur = 'Zonasi';
+                elseif($dat->jalur == 2) $ur_jalur = 'Afirmasi';
+                elseif($dat->jalur == 3) $ur_jalur = 'Prestasi';
+                elseif($dat->jalur == 4) $ur_jalur = 'Perpindahan Orang Tua';
+                else $ur_jalur = '';
+                $datas[]  = [
+                  'id'  => $dat->id,
+                  'id_' => Crypt::encrypt($dat->id),
+                  'nama'  => $dat->nama,
+                  'nik'  => $dat->nik,
+                  'nisn'  => $dat->nisn,
+                  'nm_bpk'  => $dat->nm_bpk,
+                  'nik_bpk'  => $dat->nik_bpk,
+                  'nm_ibu'  => $dat->nm_ibu,
+                  'nik_ibu' => $dat->nik_ibu,
+                  'alamat_bpk'  => $dat->alamat_bpk,
+                  'hp_bpk'  => $dat->hp_bpk,
+                  'tempat_lhr'  => $dat->tempat_lhr,
+                  'tgl_lhr'  => $dat->tgl_lhr,
+                  'alamat'  => $dat->alamat,
+                  'asal_sek'  => $dat->asal_sek,
+                  'asal_alamat'  => $dat->asal_alamat,
+                  'thn_lulus'  => $dat->thn_lulus,
+                  'id_jenjang'  => $id_jenjang,
+                  'urut'  => $urut,
+                  'ur_jk'  => $jk,
+                  'status_terima'  => $dat->status_terima,
+                  'ket_status'  => $dat->ket_status,
+                  'jalur'  => $dat->jalur,
+                  'ur_jalur'  => $ur_jalur,
+                ];
+                $urut++;
+            }
+            if(!sizeOf($data)) $datas = [];
+
+
+
+            return response()->json([
+                'success'  => true,
+                'message' => 'Data PPDB Ditemukan',
+                'data'  => $datas,
+                'req' => $req->all()
+            ]);
+
+        }
         if($otoritas['id_sek']){
             $sek  = DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first();
             if(!$sek) return ['data'=>[]];
@@ -112,7 +194,10 @@ class RegisterController extends Controller {
             // cek otoritas operator
             $cek  = DB::table('ta_sekolah_opr')->where('id_sek',$sek->id_sek)->where('id_user',Auth::id())->where('status',1)->first();
             if(!$cek){
-                return ['data'  => [] ];
+                return response()->json([
+                    'success'  => false,
+                    'message' => 'Gagal Otoritas',
+                ]);
             }
 
             $urut = 1;
@@ -179,13 +264,105 @@ class RegisterController extends Controller {
             $datas  = [];
         }
 
-        return [
-          'data'=>$datas,
-          'otoritas'  => $otoritas,
-          'testing' => $otoritas['lihat'],
-          'ppdb'  =>  DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first(),
-          'req' => $req->all()
-        ];
+        return response()->json([
+            'success'  => false,
+            'message' => '...',
+            'data'=>$datas,
+            'otoritas'  => $otoritas,
+            'testing' => $otoritas['lihat'],
+            'ppdb'  =>  DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first(),
+            'req' => $req->all()
+        ]);
+    }
+
+    static function GetDataRegistered($req){
+        $otoritas  = HA::GetOtoritas(Auth::id(),2);
+        if($otoritas['id_sek']){
+            $sek  = DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first();
+            if(!$sek) return ['data'=>[]];
+
+            // cek otoritas operator
+            $cek  = DB::table('ta_sekolah_opr')->where('id_sek',$sek->id_sek)->where('id_user',Auth::id())->where('status',1)->first();
+            if(!$cek){
+                return response()->json([
+                    'success'  => false,
+                    'message' => 'Gagal Otoritas',
+                ]);
+            }
+
+            $urut = 1;
+            $status_terima  = $req->status_terima;
+            $query  = DB::table('ta_ppdb_pendaftar')->where('id_ppdb_sek',$sek->id);
+            if($status_terima) $query->where('status_terima',$status_terima);
+            if($req->jalur) $query->where('jalur',$req->jalur);
+            $data  = $query->orderBy('created_at')->get();
+            foreach($data as $dat){
+                if($dat->nisn == 0){
+                    $cek = DB::table('dapodik_siswa_akhir')->where('nik',$dat->nik)->first();
+                    if($cek){
+                        DB::table('ta_ppdb_pendaftar')->where('id',$dat->id)->update([
+                            'nisn'  => $cek->nisn,
+                        ]);
+                    }
+                }elseif($dat->nik == 0){
+                    $cek = DB::table('dapodik_siswa_akhir')->where('nisn',$dat->nisn)->first();
+                    if($cek){
+                        DB::table('ta_ppdb_pendaftar')->where('id',$dat->id)->update([
+                            'nik'  => $cek->nik,
+                        ]);
+                    }
+                }
+
+                $id_jenjang  = DB::table('ta_sekolah')->where('id',$sek->id_sek)->value('jenjang');
+                if($dat->jk == 1) $jk = 'Laki - Laki';
+                else $jk = 'Perempuan';
+                if($dat->jalur == 1) $ur_jalur = 'Zonasi';
+                elseif($dat->jalur == 2) $ur_jalur = 'Afirmasi';
+                elseif($dat->jalur == 3) $ur_jalur = 'Prestasi';
+                elseif($dat->jalur == 4) $ur_jalur = 'Perpindahan Orang Tua';
+                else $ur_jalur = '';
+                $datas[]  = [
+                  'id'  => $dat->id,
+                  'id_' => Crypt::encrypt($dat->id),
+                  'nama'  => $dat->nama,
+                  'nik'  => $dat->nik,
+                  'nisn'  => $dat->nisn,
+                  'nm_bpk'  => $dat->nm_bpk,
+                  'nik_bpk'  => $dat->nik_bpk,
+                  'nm_ibu'  => $dat->nm_ibu,
+                  'nik_ibu' => $dat->nik_ibu,
+                  'alamat_bpk'  => $dat->alamat_bpk,
+                  'hp_bpk'  => $dat->hp_bpk,
+                  'tempat_lhr'  => $dat->tempat_lhr,
+                  'tgl_lhr'  => $dat->tgl_lhr,
+                  'alamat'  => $dat->alamat,
+                  'asal_sek'  => $dat->asal_sek,
+                  'asal_alamat'  => $dat->asal_alamat,
+                  'thn_lulus'  => $dat->thn_lulus,
+                  'id_jenjang'  => $id_jenjang,
+                  'urut'  => $urut,
+                  'ur_jk'  => $jk,
+                  'status_terima'  => $dat->status_terima,
+                  'ket_status'  => $dat->ket_status,
+                  'jalur'  => $dat->jalur,
+                  'ur_jalur'  => $ur_jalur,
+                ];
+                $urut++;
+            }
+            if(!sizeOf($data)) $datas = [];
+        }else{
+            $datas  = [];
+        }
+
+        return response()->json([
+            'success'  => false,
+            'message' => '...',
+            'data'=>$datas,
+            'otoritas'  => $otoritas,
+            'testing' => $otoritas['lihat'],
+            'ppdb'  =>  DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first(),
+            'req' => $req->all()
+        ]);
     }
 
     static function PdfRegisterPeserta($url){

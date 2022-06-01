@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\TendikImport;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Config\ConfigController as Config;
+use App\Http\Controllers\Admin\HAController as HA;
 
 class TendikController extends Controller{
     private static $tahun = 2021;
@@ -53,6 +54,44 @@ class TendikController extends Controller{
             'session' => Session::get('id_sek').' dan '.Session::get('ta'),
             'id_sek'  => Session::get('id_sek'),
             'ta'  => Session::get('ta'),
+        ]);
+    }
+
+    static function TenagaPendidik($req){
+        $success = false; $message = 'Gagal Get Data'; $data = [];
+        $id_user  = Auth::id();
+        $admin  = DB::table('users')->where('id',$id_user)->where('admin',1)->where('status',1)->count();
+        if(!$admin){
+            $opr  = DB::table('ta_sekolah_opr')->where('id_user',$id_user)->where('status',1)->first();
+            if($opr){
+                  $sek    = DB::table('ta_sekolah')->select('id','id_kec')->where('id',$opr->id_sek);
+                  $data  = $sek->get();
+                  foreach($data as $dat){
+                      $id_sek[] = $dat->id;
+                  }
+                  if(!sizeOf($data)) $id_sek[] = 0;
+            }else{
+                $id_sek[]  = 0;
+            }
+        }else{
+              $sek    = DB::table('ta_sekolah')->select('id','id_kec');
+              if($req->id_kec) $sek->where('id_kec',$req->id_kec);
+              if($req->id_sek) $sek->where('id',$req->id_sek);
+              if($req->jenjang) $sek->where('jenjang',$req->jenjang);
+              $data  = $sek->get();
+              foreach($data as $dat){
+                  $id_sek[] = $dat->id;
+              }
+              if(!sizeOf($data)) $id_sek[] = 0;
+        }
+
+        $data  = DB::table('ta_tendik')->whereIn('id_sek',$id_sek)->where('ta',$req->thn_ajar)->get();
+
+        $success = true;
+        return response()->json([
+          'success' => $success,
+          'message' => $message,
+          'data'  => $data,
         ]);
     }
 

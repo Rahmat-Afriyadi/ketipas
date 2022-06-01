@@ -18,6 +18,8 @@ use App\Http\Controllers\Sekolah\KelulusanController as Kelulusan;
 use App\Http\Controllers\Sekolah\SarprasController as Sarpras;
 use App\Http\Controllers\Sekolah\KPController as KP;
 use App\Http\Controllers\Sekolah\KGBController as KGB;
+use App\Http\Controllers\Sekolah\SekolahController as Sekolah;
+use App\Http\Controllers\Vaksin\VaksinController as Vaksin;
 
 class RouteController extends Controller
 {
@@ -75,6 +77,16 @@ class RouteController extends Controller
             return KGB::GetKGB($req);
         }
 
+        elseif($satu == 'filter-sekolah-by-kecamatan'){
+            return Sekolah::GetSekByKec($req);
+        }
+        elseif($satu == 'filter-sekolah-by-jenis'){
+            return Sekolah::GetSekByJenis($req);
+        }
+        elseif($satu == 'filter-sekolah-satu'){
+            return Sekolah::FilterSekolahSatu($req);
+        }
+
         return response()->json([
             'status'  => false,
             'message' => '..'
@@ -88,10 +100,14 @@ class RouteController extends Controller
 
         elseif($satu == 'tenaga-pendidik' && $dua == 'get-by-ta'){
             return Tendik::GetByTA($req);
+        }elseif($satu == 'data' && $dua == 'tenaga-pendidik'){
+            return Tendik::TenagaPendidik($req);
         }
 
         elseif($satu == 'tenaga-kependidikan' && $dua == 'get-by-ta'){
             return NonTendik::GetByTA($req);
+        }elseif($satu == 'data' && $dua == 'tenaga-kependidikan'){
+            return NonTendik::GetNonTendik($req);
         }
 
         elseif($satu == 'peserta-didik' && $dua == 'get-by-ta'){
@@ -102,6 +118,8 @@ class RouteController extends Controller
             return Kelulusan::UpdateNilai($req);
         }elseif($satu == 'kelulusan' && $dua == 'update-status-kelulusan'){
             return Kelulusan::UpdateKelulusan($req);
+        }elseif($satu == 'data' && $dua == 'peserta-didik'){
+            return PesertaDidik::GetPesertaDidik($req);
         }
 
         elseif($satu == 'kenaikan-pangkat' && $dua == 'detail'){
@@ -115,6 +133,14 @@ class RouteController extends Controller
         }elseif($satu == 'kgb' && $dua == 'update'){
             return KGB::UpdateKGB($tiga,$req);
         }
+
+        elseif($satu == 'vaksin' && $dua == 'filter-tenaga-pendidik'){
+            return Vaksin::FilterTenagaPendidik($req);
+        }elseif($satu == 'vaksin' && $dua == 'filter-tenaga-kependidikan'){
+            return Vaksin::FilterTenagaKependidikan($req);
+        }
+
+
 
         return response()->json([
             'status'  => false,

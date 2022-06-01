@@ -13,6 +13,7 @@ use App\Http\Controllers\Video\RouteController as Video;
 use App\Http\Controllers\Regulasi\RouteController as Regulasi;
 use App\Http\Controllers\Admin\RouteController as Admin;
 use App\Http\Controllers\Sekolah\RouteController as Sekolah;
+use App\Http\Controllers\Laporan\RouteController as Laporan;
 
 /*
 |--------------------------------------------------------------------------
@@ -209,5 +210,18 @@ Route::group(['prefix'=>'referensi'], function() {
     Route::post('/',[Referensi::class, 'index']);
     Route::post('/{satu}',[Referensi::class, 'IndexRouteSatu']);
     Route::post('/{satu}/{dua}',[Referensi::class, 'IndexRouteDua']);
+
+});
+
+Route::group(['prefix'=>'laporan', 'middleware'=>'jwt.verify'], function() {
+    Route::get('/',[Laporan::class, 'index']);
+    Route::get('/{satu}',[Laporan::class, 'IndexRouteSatu']);
+    Route::get('/{satu}/{dua}',[Laporan::class, 'IndexRouteDua']);
+    Route::get('/{satu}/{dua}/{tiga}',[Laporan::class, 'IndexRouteTiga']);
+
+    Route::post('/',[Laporan::class, 'index']);
+    Route::post('/{satu}',[Laporan::class, 'IndexRouteSatu']);
+    Route::post('/{satu}/{dua}',[Laporan::class, 'IndexRouteDua']);
+    Route::post('/{satu}/{dua}/{tiga}',[Laporan::class, 'IndexRouteTiga']);
 
 });

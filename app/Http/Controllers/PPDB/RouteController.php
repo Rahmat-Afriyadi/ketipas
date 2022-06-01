@@ -70,6 +70,12 @@ class RouteController extends Controller
             return Jadwal::GetApiJadwal($tiga,$req);
         }
 
+        elseif($satu == 'sekolah' && $dua == 'filter-by-tahun-ajaran'){
+            return PPDB::FilSekByTA($req);
+        }elseif($satu == 'kecamatan' && $dua == 'filter-by-tahun-ajaran') return PPDB::FilKecByTA($req);
+
+        elseif($satu == 'laporan' && $dua == 'registered') return Register::Registered($req);
+
         return response()->json([
             'status'  => false,
             'message' => '...',
