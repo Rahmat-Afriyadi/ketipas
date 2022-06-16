@@ -154,7 +154,7 @@ class JadwalController extends Controller{
         if($info){
             $jadwal = DB::table('ta_ppdb_jadwal')->where('id_thn',$req->id_thn)->where('id_info',$info->id)->where('ref_jadwal',1)->first();
             if($jadwal){
-                $j_awal   = '05:00:00';
+                $j_awal   = '06:00:00';
                 $j_akhir  = '12:00:00';
                 $j_now    = date('h:i:s');
                 $now      = date('Y-m-d h:i:s');
