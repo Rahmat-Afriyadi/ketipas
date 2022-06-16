@@ -150,11 +150,11 @@ class JadwalController extends Controller{
     static function chekJadwalDaftar($req){
         $data   = ''; $keterangan [] = ''; $pesan = '';
         $tahun  = DB::table('ref_tahun')->where('id',$req->id_thn)->value('tahun');
-        $info   = DB::table('ta_ppdb_info')->where('tahun',$tahun)->where('id_inst',$req->id_inst)->first();
+        $info   = DB::table('ta_ppdb_info')->where('tahun',$tahun)->first();
         if($info){
             $jadwal = DB::table('ta_ppdb_jadwal')->where('id_thn',$req->id_thn)->where('id_info',$info->id)->where('ref_jadwal',1)->first();
             if($jadwal){
-                $j_awal   = '06:00:00';
+                $j_awal   = '05:00:00';
                 $j_akhir  = '12:00:00';
                 $j_now    = date('h:i:s');
                 $now      = date('Y-m-d h:i:s');
@@ -173,7 +173,7 @@ class JadwalController extends Controller{
                                 $pesan  .= ' '.$awal;
                                 $pesan  .= ' '.$akhir;
                                 $pesan  .= ' '.$jadwal->id.' '.$jadwal->awal;
-                                $keterangan[]  = 'Silahkan Pilih Jenjang dan Jalur Pendaftaran';
+                                // $keterangan[]  = 'Silahkan Pilih Jenjang dan Jalur Pendaftaran';
                                 $keterangan[]  = 'Jadwal Pendaftaran Dimulai Pukul '.$j_awal.' s/d '.$j_akhir;
                                 $keterangan[]  = 'Waktu Server : '.$now;
 
@@ -208,18 +208,21 @@ class JadwalController extends Controller{
                 }
             }else{
                 $status = 0;
-                $keterangan[]  = 'Belum ada Tahapan Pendaftaran saat ini, Silahkan Lihat Jadwal Pendaftaran';
+                $keterangan[]  = 'Belum ada Tahapan Pendaftaran saat ini, Silahkan Lihat Jadwal Pendaftaran.';
             }
         }else{
             $status = 0;
-            $keterangan[]  = 'Belum ada Tahapan Pendaftaran saat ini, Silahkan Lihat Jadwal Pendaftaran';
+            $keterangan[]  = 'Belum ada Tahapan Pendaftaran saat ini, Silahkan Lihat Jadwal Pendaftaran..';
         }
 
-        return [
-          'status'=>$status, 'pesan'=>$pesan,
-          'keterangan'  => $keterangan,
-          'req' => $req->all()
-        ];
+        return response()->json([
+            'success'  => $status,
+            'message' => $pesan,
+            'status'=>$status,
+            'keterangan'  => $keterangan,
+            'req' => $req->all(),
+            'tahun' => $tahun,
+        ]);
     }
 
     static function GetBySek($url,$req){

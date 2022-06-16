@@ -318,4 +318,162 @@ class PPDBController extends Controller
         ]);
     }
 
+    static function DataSekReg($req){
+
+        $success = false; $message = 'Sukses Get Data';
+        $urut = 1;
+        $data  = DB::table('ta_ppdb_sek')->where('id_thn',$req->id_tahun)->get();
+        foreach($data as $dat){
+            if($dat->status) $ur_st = 'Aktif';
+            else $ur_st = 'Tidak Aktif';
+            if($dat->pelaksanaan){
+                $ur_pel = 'Online';
+                $ur_jadwal = '';
+            }else{
+                $ur_pel = 'Offline';
+                $ur_jadwal = $dat->awal.' s/d '.$dat->akhir;
+            }
+
+            $datas[]  = [
+              'id'  => $dat->id,
+              'nama'  => $dat->nm_sek,
+              'alamat'  => $dat->alamat,
+              'status'  => $dat->status,
+              'pelaksanaan' => $dat->pelaksanaan,
+              'thn_ajar'  => $dat->id_thn,
+              'awal'  => $dat->awal,
+              'akhir'  => $dat->akhir,
+              'ur_st' => $ur_st,
+              'ur_pel'  => $ur_pel,
+              'ur_jadwal'  => $ur_jadwal,
+              'urut'  => $urut,
+            ];
+            $urut++;
+        }
+        if(!sizeOf($data)) $datas = [];
+
+        return response()->json([
+          'success'  => $success,
+          'message' => $message,
+          'data'  => $datas,
+          'req' => $req->all(),
+        ]);
+
+    }
+
+
+
+    static function RegisterSekolah($url,$req){
+        $pelaksanaan = $req->pelaksanaan;
+        $thn_ajar = $req->thn_ajar;
+        $status   = $req->status;
+        $message  = ''; $success = false;
+
+        if(!$req->pelaksanaan){
+            $bulan  = ['Jan'=>'01','Feb'=>'02','Mar'=>'03', 'Apr'=>'04', 'May'=>'05', 'Jun'=>'06', 'Jul'=>'07', 'Aug'=>'08', 'Sep'=>'09', 'Oct'=>'10', 'Nov'=>'11', 'Dec'=>'12'];
+            $strip = substr($req->awal,4,1);
+            if($strip == '-'){
+                $awal = substr($req->awal,0,10);
+            }else{
+                $arr = explode(' ', $req->awal);
+                if(sizeOf($arr) > 1){
+                  $awal = $arr[3].'-'.$bulan[$arr[1]].'-'.$arr[2];
+                }
+            }
+            $strip = substr($req->akhir,4,1);
+            if($strip == '-'){
+                $akhir = substr($req->akhir,0,10);
+            }else{
+                $arr = explode(' ', $req->akhir);
+                if(sizeOf($arr) > 1){
+                  $akhir = $arr[3].'-'.$bulan[$arr[1]].'-'.$arr[2];
+                }
+            }
+
+        }else{
+            $awal  = '2021-01-02';
+            $akhir = '2021-01-02';
+        }
+        if($req->id_){
+            $data   = DB::table('ta_ppdb_sek')->where('id',$req->id_)->first();
+            if($data){
+                DB::table('ta_ppdb_sek')->where('id',$req->id_)->update([
+                    'status'  => $req->status,
+                    'pelaksanaan'  => $req->pelaksanaan,
+                    'awal'  => $awal,
+                    'akhir' => $akhir
+                ]);
+                $message  = 'Data Berhasil Di Update';
+                $success  = true;
+            }else{
+                $message  = 'Data Berhasil Di Update';
+                $success  = false;
+            }
+        }else{
+
+            $sek  = DB::table('ta_sekolah')->where('id',$req->id_sek)->first();
+            $tahun  = DB::table('ref_tahun')->where('id',$req->thn_ajar)->first();
+
+            $cek  = DB::table('ta_ppdb_sek')->where('id_sek',$sek->id)->where('id_thn',$tahun->id)->first();
+            if(!$cek){
+                DB::table('ta_ppdb_sek')->insert([
+                    'id_inst' => 1,
+                    'id_sek'  => $sek->id,
+                    'nm_sek'  => $sek->nama,
+                    'id_thn'  => $tahun->id,
+                    'tahun' => $tahun->tahun,
+                    'tahun_ajaran'  => $tahun->tahun_ajaran,
+                    'alamat'  => $sek->alamat,
+                    'status'  => $req->status,
+                    'pelaksanaan'  => $req->pelaksanaan,
+                    'awal'  => $awal,
+                    'akhir' => $akhir
+                ]);
+                $success = true; $message = 'Data Berhasil Tersimpan';
+            }else{
+                $success = false; $message = 'Data Sudah Tersedia';
+            }
+
+
+        }
+
+        $urut  = 1;
+        $data  = DB::table('ta_ppdb_sek')->where('id_thn',$req->thn_ajar)->get();
+        foreach($data as $dat){
+            if($dat->status) $ur_st = 'Aktif';
+            else $ur_st = 'Tidak Aktif';
+            if($dat->pelaksanaan){
+                $ur_pel = 'Online';
+                $ur_jadwal = '';
+            }else{
+                $ur_pel = 'Offline';
+                $ur_jadwal = $dat->awal.' s/d '.$dat->akhir;
+            }
+            $datas[]  = [
+              'id'  => $dat->id,
+              'nama'  => $dat->nm_sek,
+              'alamat'  => $dat->alamat,
+              'status'  => $dat->status,
+              'pelaksanaan' => $dat->pelaksanaan,
+              'thn_ajar'  => $dat->id_thn,
+              'awal'  => $dat->awal,
+              'akhir'  => $dat->akhir,
+              'ur_st' => $ur_st,
+              'ur_pel'  => $ur_pel,
+              'ur_jadwal' => $ur_jadwal,
+              'urut'  => $urut,
+            ];
+            $urut++;
+        }
+        if(!sizeOf($data)) $datas = [];
+
+        return response()->json([
+          'success'  => $success,
+          'message' => $message,
+          'data'  => $datas,
+          'req' => $req->all()
+        ]);
+
+    }
+
 }

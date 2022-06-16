@@ -27,13 +27,21 @@ class RegisterController extends Controller {
             $cek_nik     = DB::table('ta_ppdb_pendaftar')->where('nik',$req->siswa_nik)->count();
             if($cek_nik){
                 $pesan_error[]  = 'Maaf, NIK Siswa Sudah Teregister';
-                return ['error'=>1, 'pesan_error'=>$pesan_error, 'pesan'=>'Gagal Register, Silahkan Lengkapi Pesan Error'];
+                return response()->json([
+                    'success'  => false,
+                    'pesan_error' => $pesan_error,
+                    'message'=>'Gagal Register, Silahkan Lengkapi Pesan Error'
+                ]);
             }
 
             $ppdb  = DB::table('ta_ppdb_sek')->where('id_thn',$req->id_thn)->where('id_sek',$req->tujuan_id_sek)->first();
             if(!$ppdb){
-                $pesan_error[]  = 'Terjadi Kesalahan, Hubungi Administrator (101)';
-                return ['error'=>1, 'pesan_error'=>$pesan_error, 'pesan'=>'Gagal Register, Silahkan Lengkapi Pesan Error'];
+                $pesan_error[]  = 'Terjadi Kesalahan, Hubungi Administrator (39)';
+                return response()->json([
+                    'success'  => false,
+                    'pesan_error' => $pesan_error,
+                    'message'=>'Gagal Register, Silahkan Lengkapi Pesan Error'
+                ]);
             }
 
             $no_peserta  = rand(999,10000);
@@ -95,9 +103,19 @@ class RegisterController extends Controller {
                   'sek_tujuan'  => $sek->nama,
                   'id_'  => Crypt::encrypt($dat->id)
                 ];
-                return ['error'=>0, 'pesan'=>'Sukses Register Peserta', 'data'=>$data];
+                return response()->json([
+                    'success'  => true,
+                    'pesan_error' => [],
+                    'message'=>'Sukses Register PPDB',
+                    'data'  => $data,
+                ]);
             }else{
-                return ['error'=>1, 'pesan'=>'Gagal Register Peserta', 'data'=>''];
+                return response()->json([
+                    'success'  => false,
+                    'pesan_error' => [],
+                    'message'=>'Gagal Register Peserta',
+                    'data'  => []
+                ]);
             }
 
         }

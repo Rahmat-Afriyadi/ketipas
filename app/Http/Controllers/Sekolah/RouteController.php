@@ -87,6 +87,10 @@ class RouteController extends Controller
             return Sekolah::FilterSekolahSatu($req);
         }
 
+        elseif($satu == 'get-data-all'){
+            return Sekolah::GetDataAllSekolah(0);
+        }
+
         return response()->json([
             'status'  => false,
             'message' => '..'

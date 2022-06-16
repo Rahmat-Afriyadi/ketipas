@@ -180,4 +180,89 @@ class SekolahController extends Controller{
     }
 
 
+    static function GetDataAllSekolah($id_kec){
+        $id_user  = Auth::id(); $success = false; $message = '';
+        $opr   = DB::table('ta_instansi_opr')->where('id_user',$id_user)->where('status',1)->get();
+        if(sizeOf($opr)){
+            foreach($opr as $dtopr){
+                $idinst[]  = $dtopr->id_inst;
+            }
+            $data  = DB::table('ta_sekolah')->whereIn('id_inst',$idinst)->get();
+            foreach($data as $dat){
+                if($dat->status) $nm_status = 'Aktif';
+                else $nm_status = 'Tidak Aktif';
+                $datas[] = [
+                  'id'  => $dat->id,
+                  'nama'  => $dat->nama,
+                  'email' => $dat->email,
+                  'alamat'  => $dat->alamat,
+                  'status'  => $dat->status,
+                  'id_kec'  => $dat->id_kec,
+                  'nm_status' => $nm_status
+                ];
+            }
+            if(!sizeOf($data)) $datas  = '';
+            $otoritas = 1; $success = true;
+        }else{
+            $otoritas = 0; $success = false;
+            $datas = '';
+        }
+        return response()->json([
+            'success'  => $success,
+            'message' => $message,
+            'otoritas'=>$otoritas,
+            'data'=>$datas,
+            'admin' => DB::table('users')->where('id',Auth::id())->where('status',1)->value('admin')
+        ]);
+
+    }
+
+    static function GuestGetSekolahPPDB($req){
+        $success = false; $message = ''; $datas = [];
+        $nm_pel  = DB::table('ta_ppdb_info')->where('id',1)->value('nm_pel');
+
+        $info  = DB::table('ta_ppdb_sek')->where('id_thn',$req->id_thn)->where('status',1)->get();
+        foreach($info as $dinf){
+            $idsek[] = 0;
+            $dsek  = DB::table('ta_ppdb_kuota')->where('id_ppdb_sek',$dinf->id)->get();
+            foreach($dsek as $dts){
+                $oke = 0;
+                if($dts->zonasi) $oke = 1;
+                elseif($dts->afirmasi) $oke = 1;
+                elseif($dts->prestasi) $oke = 1;
+                elseif($dts->perpindahan) $oke = 1;
+                if($oke) $idsek[] = $dinf->id_sek;
+            }
+        }
+        if(sizeOf($info)){
+            $no = 1;
+            $data  = DB::table('ta_sekolah')->where('jenjang',$req->id_jenjang)->where('id_inst',1)->whereIn('id',$idsek)->get();
+            foreach($data as $dat){
+                $datas[]  = [
+                  'id'  => $dat->id,
+                  'urut'  => $no,
+                  'nama'  => $dat->nama,
+                  'email'  => $dat->email,
+                  'alamat'  => $dat->alamat,
+                ];
+                $no++;
+            }
+            if(!sizeOf($data)) $datas = [];
+            else $success = true;
+        }else{
+            $nm_pel = 'infot tidak Ditemukan';
+        }
+
+
+        return response()->json([
+            'success'  => $success,
+            'message' => $message,
+            'nm_inst'=>$nm_pel,
+            'data'=>$datas,
+            'req' => $req->all()
+        ]);
+
+
+    }
+
 }

@@ -37,16 +37,16 @@ class LokasiController extends Controller{
             }
             if(!sizeOf($data)) $datas = '';
             $nm_pel  = $info->nm_pel;
-            $status  = true;
+            $success  = true;
             $message = 'Sukses';
         }else{
             $nm_pel  = '';
-            $status  = false;
+            $success  = false;
             $message = 'Gagal';
             $datas = [];
         }
         return response()->json([
-          'status'  => $status,
+          'success'  => $success,
           'message' => $message,
           'data'  => $datas,
           'nm_pel'  => $nm_pel,

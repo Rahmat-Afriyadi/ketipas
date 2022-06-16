@@ -14,6 +14,9 @@ use App\Http\Controllers\PPDB\PPDBController as PPDB;
 use App\Http\Controllers\PPDB\LokasiController as Lokasi;
 use App\Http\Controllers\PPDB\RegisterController as Register;
 use App\Http\Controllers\PPDB\JadwalController as Jadwal;
+use App\Http\Controllers\PPDB\PenerimaanController as Penerimaan;
+use App\Http\Controllers\Sekolah\SekolahController as Sekolah;
+use App\Http\Controllers\Siswa\SiswaController as Siswa;
 
 class RouteController extends Controller
 {
@@ -21,14 +24,17 @@ class RouteController extends Controller
     public function index(){
 
         return response()->json([
-            'status'  => false,
+            'success'  => false,
             'message' => '.'
         ]);
     }
 
     public function IndexRouteSatu($satu, Request $req){
+
+        if($satu == 'guest-cari-nisn-siswa-akhir') return Siswa::GuestGetSiswaAkhir($req);
+
         return response()->json([
-            'status'  => false,
+            'success'  => false,
             'message' => '..'
         ]);
     }
@@ -52,8 +58,15 @@ class RouteController extends Controller
             return PPDB::HapusDataInformasi($req);
         }
 
+        elseif($satu == 'get-data-sekolah-register') return PPDB::DataSekReg($req);
+        elseif($satu == 'guest' && $dua == 'get-data-sekolah') return Sekolah::GuestGetSekolahPPDB($req);
+        elseif($satu == 'chek-jadwal-pendaftaran') return Jadwal::chekJadwalDaftar($req);
+        elseif($satu == 'guest' && $dua == 'get-data-kuota-sekolah') return Penerimaan::GuestGetKuotaPPDB($req);
+
+        elseif($satu == 'register-ppdb') return Register::RegisterPPDB($req);
+
         return response()->json([
-            'status'  => false,
+            'success'  => false,
             'message' => '...',
             'data'  => $satu.' # '.$dua
         ]);
@@ -68,7 +81,12 @@ class RouteController extends Controller
             return PPDB::GetInformasiAturan($tiga,$req);
         }elseif($satu == 'home' && $dua == 'get-info-jadwal'){
             return Jadwal::GetApiJadwal($tiga,$req);
+        }elseif($satu == 'home' && $dua == 'register-sekolah'){
+            return PPDB::RegisterSekolah($tiga,$req);
         }
+        elseif($satu == 'sekolah' && $dua == 'get-data-ppdb-info') return Penerimaan::GetDataPPDBInfo();
+        elseif($satu == 'sekolah' && $dua == 'get-data-ppdb-kuota') return Penerimaan::GetDataPPDBKuota($tiga,$req);
+        elseif($satu == 'sekolah' && $dua == 'get-data-registered') return Register::GetDataRegistered($req);
 
         elseif($satu == 'sekolah' && $dua == 'filter-by-tahun-ajaran'){
             return PPDB::FilSekByTA($req);
@@ -76,8 +94,9 @@ class RouteController extends Controller
 
         elseif($satu == 'laporan' && $dua == 'registered') return Register::Registered($req);
 
+
         return response()->json([
-            'status'  => false,
+            'success'  => false,
             'message' => '...',
             'tiga'  => $satu.' # '.$dua.' # '.$tiga
         ]);
