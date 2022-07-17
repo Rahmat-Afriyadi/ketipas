@@ -94,6 +94,8 @@ class RouteController extends Controller
 
         elseif($satu == 'laporan' && $dua == 'registered') return Register::Registered($req);
 
+        elseif($satu == 'jadwal' && $dua == 'get-by-sekolah') return Jadwal::GetBySek($tiga,$req);
+
 
         return response()->json([
             'success'  => false,

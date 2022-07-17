@@ -227,7 +227,7 @@ class JadwalController extends Controller{
 
     static function GetBySek($url,$req){
         $status = 0;
-        // $status = 1;
+        $status = 1;
         $ppdb   = DB::table('ta_ppdb_sek')->where('id',$req->id_)->where('pelaksanaan',0)->where('status',1)->first();
         if($ppdb){
             $now      = date('Y-m-d');
@@ -239,12 +239,16 @@ class JadwalController extends Controller{
                 $status  = 1;
             }
         }
-        return [
-          'url' => $url,
-          'req' => $req->all(),
-          'status'  => $status,
-          'tes' => $req->id_
-        ];
+
+        return response()->json([
+            'success'  => true,
+            'message' => 'Sukses',
+            'url' => $url,
+            'req' => $req->all(),
+            'status'  => $status,
+            'tes' => $req->id_
+        ]);
+        
     }
 
 

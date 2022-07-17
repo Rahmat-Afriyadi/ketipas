@@ -35,6 +35,13 @@ class PDImport implements ToModel, WithStartRow
             'tgl_lhr'    => $row[6],
             'nik'    => $row[7],
             'agama'    => $row[8],
+            'alamat'  => $row[9],
+            'rt'  => $row[10],
+            'rw'  => $row[11],
+            'dusun'  => $row[12],
+            'kelurahan'  => $row[13],
+            'kecamatan'  => $row[14],
+            'rombel'  => $row[42],
         ]);
     }
 }
