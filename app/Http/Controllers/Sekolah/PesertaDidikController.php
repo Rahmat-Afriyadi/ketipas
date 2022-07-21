@@ -161,26 +161,69 @@ class PesertaDidikController extends Controller{
                   if($sek->jenjang == 'SD'){
                       $sek_dik = DB::table('ta_siswa')->where('id_sek',$opr->id_sek)->where('ta',$thn->tahun)->get();
                       foreach($sek_dik as $dat){
-                          $rombel = substr($dat->rombel,0,1);
-                          if($rombel == 6){
-
-                              $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
-                              if(!$cek){
-                                  $alamat  = $dat->alamat;
-                                  if($dat->rt) $alamat .= ' RT: '.$dat->rt;
-                                  if($dat->rw) $alamat .= ' RW: '.$dat->rw;
-                                  DB::table('ta_kelulusan')->insert([
-                                      'tahun' => $thn->tahun,
-                                      'id_sek'  => $sek->id,
-                                      'nisn'  => $dat->nisn,
-                                      'nama'  => $dat->nama,
-                                      'nik'  => $dat->nik,
-                                      'tempat_lahir'  => $dat->tmp_lhr,
-                                      'tanggal_lahir'  => $dat->tgl_lhr,
-                                      'jenis_kelamin'  => $dat->jk,
-                                      'alamat'  => $alamat,
-                                  ]);
+                          $rombel = explode(" ",$dat->rombel);
+                          if(sizeOf($rombel) > 0){
+                              // format Kelas 6
+                              if($rombel[1] == 6){
+                                  $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
+                                  if(!$cek){
+                                      $alamat  = $dat->alamat;
+                                      if($dat->rt) $alamat .= ' RT: '.$dat->rt;
+                                      if($dat->rw) $alamat .= ' RW: '.$dat->rw;
+                                      DB::table('ta_kelulusan')->insert([
+                                          'tahun' => $thn->tahun,
+                                          'id_sek'  => $sek->id,
+                                          'nisn'  => $dat->nisn,
+                                          'nama'  => $dat->nama,
+                                          'nik'  => $dat->nik,
+                                          'tempat_lahir'  => $dat->tmp_lhr,
+                                          'tanggal_lahir'  => $dat->tgl_lhr,
+                                          'jenis_kelamin'  => $dat->jk,
+                                          'alamat'  => $alamat,
+                                      ]);
+                                  }
+                              }elseif($rombel[1] == "VI"){
+                                  $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
+                                  if(!$cek){
+                                      $alamat  = $dat->alamat;
+                                      if($dat->rt) $alamat .= ' RT: '.$dat->rt;
+                                      if($dat->rw) $alamat .= ' RW: '.$dat->rw;
+                                      DB::table('ta_kelulusan')->insert([
+                                          'tahun' => $thn->tahun,
+                                          'id_sek'  => $sek->id,
+                                          'nisn'  => $dat->nisn,
+                                          'nama'  => $dat->nama,
+                                          'nik'  => $dat->nik,
+                                          'tempat_lahir'  => $dat->tmp_lhr,
+                                          'tanggal_lahir'  => $dat->tgl_lhr,
+                                          'jenis_kelamin'  => $dat->jk,
+                                          'alamat'  => $alamat,
+                                      ]);
+                                  }
                               }
+
+                          }else{
+                              $rombel = substr($dat->rombel,0,1);
+                              if($rombel == 6){
+                                  $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
+                                  if(!$cek){
+                                      $alamat  = $dat->alamat;
+                                      if($dat->rt) $alamat .= ' RT: '.$dat->rt;
+                                      if($dat->rw) $alamat .= ' RW: '.$dat->rw;
+                                      DB::table('ta_kelulusan')->insert([
+                                          'tahun' => $thn->tahun,
+                                          'id_sek'  => $sek->id,
+                                          'nisn'  => $dat->nisn,
+                                          'nama'  => $dat->nama,
+                                          'nik'  => $dat->nik,
+                                          'tempat_lahir'  => $dat->tmp_lhr,
+                                          'tanggal_lahir'  => $dat->tgl_lhr,
+                                          'jenis_kelamin'  => $dat->jk,
+                                          'alamat'  => $alamat,
+                                      ]);
+                                  }
+                              }
+
                           }
                       }
                   }elseif($sek->jenjang == 'SMP'){

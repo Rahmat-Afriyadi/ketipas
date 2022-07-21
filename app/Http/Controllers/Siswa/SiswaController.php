@@ -601,7 +601,7 @@ class SiswaController extends Controller{
             'data'  => $datas,
             'req' => $req->all()
         ]);
-        
+
     }
 
     static function GetDataKelulusan($req){
@@ -666,6 +666,23 @@ class SiswaController extends Controller{
               'id_sek'  => $sek->id,
             ];
         }
+    }
+
+    static function GetSiswaByNIK($url,$req){
+        $success = false; $message = 'NIK '.$req->nik.' Tidak Ditemukan'; $data = [];
+        if(strlen($req->nik) > 4){
+            $data = DB::table('ta_siswa')->where('nik','LIKE',$req->nik.'%')->orderBy('id','desc')->get();
+            if(sizeOf($data)){
+                $success = true; $message = 'Data Ditemukan, Silahkan Tambah';
+            }
+        }
+
+        return response()->json([
+            'success'  => $success,
+            'message' => $message,
+            'data'  => $data,
+            'req' => $req->all()
+        ]);
     }
 
 }

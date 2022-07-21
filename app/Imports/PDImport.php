@@ -42,6 +42,14 @@ class PDImport implements ToModel, WithStartRow
             'kelurahan'  => $row[13],
             'kecamatan'  => $row[14],
             'rombel'  => $row[42],
+
+            'hp'  => $row[20],
+            'nm_ayah'  => $row[24],
+            'nik_ayah'  => $row[29],
+            'nm_ibu'  => $row[30],
+            'nik_ibu'  => $row[35],
+            'sek_asal'  => $row[56],
+
         ]);
     }
 }

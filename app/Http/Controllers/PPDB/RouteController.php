@@ -65,6 +65,8 @@ class RouteController extends Controller
 
         elseif($satu == 'register-ppdb') return Register::RegisterPPDB($req);
 
+        elseif($satu == 'operator-tambah-ppdb') return Register::OprAddPPDB($req);
+
         return response()->json([
             'success'  => false,
             'message' => '...',
@@ -86,7 +88,7 @@ class RouteController extends Controller
         }
         elseif($satu == 'sekolah' && $dua == 'get-data-ppdb-info') return Penerimaan::GetDataPPDBInfo();
         elseif($satu == 'sekolah' && $dua == 'get-data-ppdb-kuota') return Penerimaan::GetDataPPDBKuota($tiga,$req);
-        elseif($satu == 'sekolah' && $dua == 'get-data-registered') return Register::GetDataRegistered($req);
+        elseif($satu == 'sekolah' && $dua == 'get-data-registered') return Register::GetDataRegistered($tiga,$req);
 
         elseif($satu == 'sekolah' && $dua == 'filter-by-tahun-ajaran'){
             return PPDB::FilSekByTA($req);
@@ -96,6 +98,7 @@ class RouteController extends Controller
 
         elseif($satu == 'jadwal' && $dua == 'get-by-sekolah') return Jadwal::GetBySek($tiga,$req);
 
+        elseif($satu == 'peserta-didik' && $dua == 'cari-nik') return Siswa::GetSiswaByNIK($tiga,$req);
 
         return response()->json([
             'success'  => false,

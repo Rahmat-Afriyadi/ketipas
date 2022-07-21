@@ -13,11 +13,11 @@ class PesertaDidik extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-       'nama', 'nipd', 'jk','nisn','tmp_lhr','tgl_lhr','nik','agama','id_sek', 'ta', 'alamat', 'rt', 'rw', 'dusun', 'kelurahan', 'kecamatan', 'rombel'
+       'nama', 'nipd', 'jk','nisn','tmp_lhr','tgl_lhr','nik','agama','id_sek', 'ta', 'alamat', 'rt', 'rw', 'dusun', 'kelurahan', 'kecamatan', 'rombel',
+       'hp', 'nm_ayah', 'nik_ayah', 'hp_ayah', 'nm_ibu', 'nik_ibu', 'sek_asal'
     ];
 }
 
 
-// ALTER TABLE `ta_siswa` ADD `rombel` VARCHAR(25) NULL AFTER `agama`;
-
-// ALTER TABLE `ta_siswa` ADD `alamat` VARCHAR(255) NULL AFTER `agama`, ADD `rt` VARCHAR(5) NULL AFTER `alamat`, ADD `rw` VARCHAR(5) NULL AFTER `rt`, ADD `dusun` VARCHAR(255) NULL AFTER `rw`, ADD `kelurahan` VARCHAR(255) NULL AFTER `dusun`, ADD `kecamatan` VARCHAR(255) NULL AFTER `kelurahan`;
+//  hp ayah null
+// ALTER TABLE `ta_ppdb_pendaftar` CHANGE `asal_sek` `asal_sek` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;

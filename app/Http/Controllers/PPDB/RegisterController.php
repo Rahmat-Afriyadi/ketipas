@@ -293,11 +293,19 @@ class RegisterController extends Controller {
         ]);
     }
 
-    static function GetDataRegistered($req){
+    static function GetDataRegistered($url,$req){
+        $message   = ''; $success = false;
         $otoritas  = HA::GetOtoritas(Auth::id(),2);
         if($otoritas['id_sek']){
-            $sek  = DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first();
-            if(!$sek) return ['data'=>[]];
+            $exp  = explode("-",$url);
+            $sek  = DB::table('ta_ppdb_sek')->where('id',$exp[0])->first();
+            if(!$sek){
+                return response()->json([
+                    'success'  => false,
+                    'message' => 'Gagal Otoritas',
+                    'url' => $url
+                ]);
+            }
 
             // cek otoritas operator
             $cek  = DB::table('ta_sekolah_opr')->where('id_sek',$sek->id_sek)->where('id_user',Auth::id())->where('status',1)->first();
@@ -372,9 +380,13 @@ class RegisterController extends Controller {
             $datas  = [];
         }
 
+        if(sizeOf($datas)){
+            $success = true;
+            $message = 'Sukses';
+        }
         return response()->json([
-            'success'  => false,
-            'message' => '...',
+            'success'  => $success,
+            'message' => $message,
             'data'=>$datas,
             'otoritas'  => $otoritas,
             'testing' => $otoritas['lihat'],
@@ -771,11 +783,21 @@ class RegisterController extends Controller {
     }
 
     static function OprAddPPDB($req){
-        $error = 1; $pesan = 'Gagal Tambah PPDB';
-        $ppdb = DB::table('ta_ppdb_sek')->where('id',$req->id_ppdb_sek)->first();
-        $ma  = DB::table('dapodik_siswa_akhir')->where('id',$req->id)->first();
+        $success = false; $message = 'Gagal Tambah PPDB';
+        $user = Auth::user();
+        $exp  = explode("-",$req->url);
+
+
+        // return response()->json([
+        //     'status'  => $success,
+        //     'message' => $message,
+        //     'req' => $req->all(),
+        // ]);
+
+        $ppdb = DB::table('ta_ppdb_sek')->where('id',$exp[0])->first();
+        $ma  = DB::table('ta_siswa')->where('id',$req->id)->first();
         if($ma){
-            if($ma->jenis_kelamin == 'L') $jk = 1;
+            if($ma->jk == 'L') $jk = 1;
             else $jk = 2;
             $no_peserta = DB::table('ta_ppdb_pendaftar')->select('no_peserta')->orderBy('no_peserta','DESC')->value('no_peserta');
             $no_peserta++;
@@ -789,29 +811,29 @@ class RegisterController extends Controller {
                 'nik' => $ma->nik,
                 'nisn' => $ma->nisn,
                 'jk'  => $jk,
-                'tempat_lhr'  => $ma->tempat_lahir,
-                'tgl_lhr' => $ma->tanggal_lahir,
+                'tempat_lhr'  => $ma->tmp_lhr,
+                'tgl_lhr' => $ma->tgl_lhr,
                 'nik' => $ma->nik,
-                'alamat' => $ma->alamat_jalan.' RT/RW: '.$ma->rt.'/'.$ma->rw,
-                'nm_bpk' => $ma->nama_ayah,
-                'nik_bpk' => 0,
-                'hp_bpk' => $req->hp_bpk,
-                'alamat_bpk' => $ma->alamat_jalan.' RT/RW: '.$ma->rt.'/'.$ma->rw,
-                'nm_ibu' => $ma->nama_ibu_kandung,
-                'nik_ibu' => 0,
-                'asal_sek' => $ppdb->nm_sek,
-                'asal_alamat' => $ppdb->alamat,
+                'alamat' => $ma->alamat.' RT/RW: '.$ma->rt.'/'.$ma->rw,
+                'nm_bpk' => $ma->nm_ayah,
+                'nik_bpk' => $ma->nik_ayah,
+                'hp_bpk' => $ma->hp_ayah,
+                'alamat_bpk' => '-',
+                'nm_ibu' => $ma->nm_ibu,
+                'nik_ibu' => $ma->nik_ibu,
+                'asal_sek' => $ma->sek_asal,
+                'asal_alamat' => '-',
                 'thn_lulus' => date('Y'),
                 'jalur' => 1
             ]);
-            $error = 0; $pesan = 'Berhasil Tambah Data '.$ma->nama;
+            $success = true; $message = 'Berhasil Tambah Data '.$ma->nama;
         }
+        return response()->json([
+            'success'  => $success,
+            'message' => $message,
+            'req' => $req->all(),
+        ]);
 
-        return [
-          'req' => $req->all(),
-          'error' => $error,
-          'pesan' => $pesan,
-        ];
     }
 
     static function CekStatusPendaftaran($req){
