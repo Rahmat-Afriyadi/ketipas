@@ -64,8 +64,12 @@ class RouteController extends Controller
 
     public function downloadPDF($id)
     {
+        $sek    = DB::table('ta_sekolah')->select('id','nama','email','alamat','jenjang','id_kec');
+        if($_GET['jenjang']) $sek->where('jenjang',$_GET['jenjang']);  //tak usah dihapus
+        if($_GET['id_kec']) $sek->where('id_kec',$_GET['id_kec']);
+        $data  = $sek->get();
         $pdf = PDF::setOptions(['defaultFont' => 'serif','isHtml5ParserEnabled' => true,'isRemoteEnabled' => true])->loadView('test', ['name'=>'Hallo']);
-        return $pdf->stream('test.pdf');
+        return $pdf->stream('test.pdf',$data->toArray());
     }
 
 }
