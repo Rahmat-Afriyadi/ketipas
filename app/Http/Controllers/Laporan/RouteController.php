@@ -63,7 +63,7 @@ class RouteController extends Controller
         return view('test',['data'=>$data->toArray(),'kec'=>$kec->uraian,'jenjang'=>$_GET['jenjang']]);
     }
 
-    public function downloadPDF($id)
+    public function downloadPDF()
     {
         $sek  = DB::table('ta_sekolah')->select('id','nama','email','alamat','jenjang','id_kec');
         $kec = DB::table('ref_kecamatan')->select('id','uraian')->where('id',$_GET['id_kec'])->first();
