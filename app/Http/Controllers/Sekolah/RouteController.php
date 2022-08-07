@@ -144,8 +144,6 @@ class RouteController extends Controller
             return Vaksin::FilterTenagaKependidikan($req);
         }
 
-
-
         return response()->json([
             'status'  => false,
             'message' => '...'

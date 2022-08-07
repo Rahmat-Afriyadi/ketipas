@@ -26,6 +26,8 @@ use App\Http\Controllers\Laporan\RouteController as Laporan;
 |
 */
 
+Route::get('laporan/sekolah/test-view', [Laporan::class, 'test_view']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -225,3 +227,5 @@ Route::group(['prefix'=>'laporan', 'middleware'=>'jwt.verify'], function() {
     Route::post('/{satu}/{dua}/{tiga}',[Laporan::class, 'IndexRouteTiga']);
 
 });
+
+
