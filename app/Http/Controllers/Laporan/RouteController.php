@@ -56,20 +56,22 @@ class RouteController extends Controller
 
     public function test_view(Request $request){
         $sek    = DB::table('ta_sekolah')->select('id','nama','email','alamat','jenjang','id_kec');
+        $kec = DB::table('ref_kecamatan')->select('id','uraian')->where('id',$_GET['id_kec'])->first();
         if($_GET['jenjang']) $sek->where('jenjang',$_GET['jenjang']);  //tak usah dihapus
         if($_GET['id_kec']) $sek->where('id_kec',$_GET['id_kec']);
         $data  = $sek->get();
-        return view('test',['data'=>$data->toArray()]);
+        return view('test',['data'=>$data->toArray(),'kec'=>$kec->uraian,'jenjang'=>$_GET['jenjang']]);
     }
 
     public function downloadPDF($id)
     {
-        $sek    = DB::table('ta_sekolah')->select('id','nama','email','alamat','jenjang','id_kec');
+        $sek  = DB::table('ta_sekolah')->select('id','nama','email','alamat','jenjang','id_kec');
+        $kec = DB::table('ref_kecamatan')->select('id','uraian')->where('id',$_GET['id_kec'])->first();
         if($_GET['jenjang']) $sek->where('jenjang',$_GET['jenjang']);  //tak usah dihapus
         if($_GET['id_kec']) $sek->where('id_kec',$_GET['id_kec']);
         $data  = $sek->get();
         $pdf = PDF::setOptions(['defaultFont' => 'serif','isHtml5ParserEnabled' => true,'isRemoteEnabled' => true])->loadView('test', ['name'=>'Hallo']);
-        return $pdf->stream('test.pdf',$data->toArray());
+        return $pdf->stream('test.pdf',['data'=>$data->toArray(),'kec'=>$kec['uraian'],'jenjang'=>$_GET['jenjang']]);
     }
 
 }

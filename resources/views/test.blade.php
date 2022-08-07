@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hallo</h1>
+    <h1>{{$kec}}</h1>
     @foreach ($data as $value)
         <p>{{ $value->nama }}</p>
         <p>{{ $value->email }}</p>

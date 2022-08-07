@@ -27,7 +27,7 @@ use App\Http\Controllers\Laporan\RouteController as Laporan;
 */
 
 Route::get('laporan/sekolah/test-view', [Laporan::class, 'test_view']);
-Route::get('laporan/sekolah/download-pdf', [Laporan::class, 'test_view']);
+Route::get('laporan/sekolah/download-pdf', [Laporan::class, 'downloadPDF']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
