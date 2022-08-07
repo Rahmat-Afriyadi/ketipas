@@ -133,7 +133,7 @@ class PesertaDidikController extends Controller{
               $sek_dik = DB::table('dapodik_siswa_akhir')
                          ->where('sekolah_id',$sek->sekolah_id)
                          // ->where('ta',$thn->tahun)
-                         ->where('ta',2000)
+                         ->where('ta',2200)
                          ->get();
               foreach($sek_dik as $dat){
                   $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$sek->id)->where('nisn',$dat->nisn)->first();
@@ -232,6 +232,24 @@ class PesertaDidikController extends Controller{
                           $rombel = explode(" ",$dat->rombel);
                           // $title .= $dat->nama.' - '.$rombel[1];
                           if($rombel[1] == 9){
+                              $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
+                              if(!$cek){
+                                  $alamat  = $dat->alamat;
+                                  if($dat->rt) $alamat .= ' RT: '.$dat->rt;
+                                  if($dat->rw) $alamat .= ' RW: '.$dat->rw;
+                                  DB::table('ta_kelulusan')->insert([
+                                      'tahun' => $thn->tahun,
+                                      'id_sek'  => $sek->id,
+                                      'nisn'  => $dat->nisn,
+                                      'nama'  => $dat->nama,
+                                      'nik'  => $dat->nik,
+                                      'tempat_lahir'  => $dat->tmp_lhr,
+                                      'tanggal_lahir'  => $dat->tgl_lhr,
+                                      'jenis_kelamin'  => $dat->jk,
+                                      'alamat'  => $alamat,
+                                  ]);
+                              }
+                          }elseif($rombel[1] == 'IX'){
                               $cek = DB::table('ta_kelulusan')->where('tahun',$thn->tahun)->where('id_sek',$opr->id_sek)->where('nisn',$dat->nisn)->first();
                               if(!$cek){
                                   $alamat  = $dat->alamat;

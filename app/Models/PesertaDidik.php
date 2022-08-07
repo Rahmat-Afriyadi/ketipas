@@ -17,7 +17,3 @@ class PesertaDidik extends Model
        'hp', 'nm_ayah', 'nik_ayah', 'hp_ayah', 'nm_ibu', 'nik_ibu', 'sek_asal'
     ];
 }
-
-
-//  hp ayah null
-// ALTER TABLE `ta_ppdb_pendaftar` CHANGE `asal_sek` `asal_sek` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
