@@ -70,8 +70,8 @@ class RouteController extends Controller
         if($_GET['jenjang']) $sek->where('jenjang',$_GET['jenjang']);  //tak usah dihapus
         if($_GET['id_kec']) $sek->where('id_kec',$_GET['id_kec']);
         $data  = $sek->get();
-        $pdf = PDF::setOptions(['defaultFont' => 'serif','isHtml5ParserEnabled' => true,'isRemoteEnabled' => true])->loadView('test', ['name'=>'Hallo']);
-        return $pdf->stream('test.pdf',['data'=>$data->toArray(),'kec'=>$kec['uraian'],'jenjang'=>$_GET['jenjang']]);
+        $pdf = PDF::setOptions(['defaultFont' => 'serif','isHtml5ParserEnabled' => true,'isRemoteEnabled' => true])->loadView('test', ['data'=>$data->toArray(),'kec'=>$kec->uraian,'jenjang'=>$_GET['jenjang']]);
+        return $pdf->stream('test.pdf');
     }
 
 }
